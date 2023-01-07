@@ -32,7 +32,4 @@ def create_app():
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
 
-    from .note import note as note_blueprint
-    app.register_blueprint(note_blueprint)
-
     return app

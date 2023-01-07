@@ -6,15 +6,22 @@
 </h1>
 <div class="">
 {% if notes|length > 0 %}
-<h1> Your notes: </h1>
+<h2 class="subtitle"> Your notes: </h2>
 <ul>
 {% for note in notes %}
   <li>
-    <h5> {{ loop.index }}: {{ notes[loop.index].title }} </h5>
-    <p> {{ notes[loop.index].content }} </p>
+    <h5><a href="{{ url_for('main.note_show', note_id=note.id) }}">{{ loop.index }}: {{ note.title }}</a></h5>
+    <p> {{ note.content }} </p>
   </li>
 {% endfor %}
 </ul>
+{% else %}
+<h2 class="subtitle">
+  Looks like you don't have a single note yet.
+</h2>
+<div>
+  <a class="pagination-link" href="{{ url_for('main.note_create') }}">Create your first note</a>
+</div>
 {% endif %}
 {% with messages = get_flashed_messages() %}
 {% if messages %}
@@ -23,17 +30,4 @@
     </div>
 {% endif %}
 {% endwith %}
-<form method="POST" action="/note">
-  <div class="field">
-      <div class="control">
-          <input class="input is-large" name="title" placeholder="Note title">
-      </div>
-  </div>
-  <div class="field">
-    <div class="control">
-        <textarea name="content">{{ note_text }}</textarea>
-    </div>
-  </div>
-  <button class="button is-block is-info is-large is-fullwidth">Create new note</button>
-</form>
 {% endblock %}

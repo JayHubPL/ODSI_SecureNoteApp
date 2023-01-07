@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, current_app, redirect, url_for, flash, session
 from flask_login import login_required, current_user
 from sqlalchemy.sql import text
+import markdown
 from .models import Note
 from . import db
 
@@ -13,14 +14,19 @@ def index():
 @main.route('/profile')
 @login_required
 def profile():
-    res = Note.query.filter_by(owner_id = current_user.id).all()
-    current_app.logger.debug('%s', res)
+    notes = Note.query.filter_by(owner_id = current_user.id).all()
+    current_app.logger.debug('%s', notes)
     
-    note_text = ""
-    if session.get('wip_note_text'):
-        note_text = session.get('wip_note_text')
+    return render_template('profile.html', name=current_user.name, notes=notes)
 
-    return render_template('profile.html', name=current_user.name, note_text=note_text)
+@main.route('/note')
+@login_required
+def note_create():
+    if 'wip_note_text' not in session:
+        session['wip_note_text'] = ""
+    current_app.logger.debug('%s', session['wip_note_text'])
+
+    return render_template('new_note.html', note_text=session['wip_note_text'])
 
 @main.route('/note', methods=['POST'])
 @login_required
@@ -31,7 +37,7 @@ def note_post():
     if not title:
         flash("Title cannot be empty")
         session['wip_note_text'] = content
-        return redirect(url_for('main.profile'))
+        return redirect(url_for('main.note_create'))
     else:
         session['wip_note_text'] = ""
 
@@ -41,3 +47,17 @@ def note_post():
     db.session.commit()
 
     return redirect(url_for('main.profile'))
+
+@main.route('/note/<note_id>')
+@login_required
+def note_show(note_id):
+    note = Note.query.filter_by(id=note_id).one()
+    current_app.logger.debug('%s', note.content)
+
+    if note is None or note.owner_id is not current_user.id:
+        flash("Invalid note_id")
+        return redirect(url_for('main.profile'))
+
+    rendered = markdown.markdown(note.content)
+
+    return render_template('display_note.html', rendered=rendered)
