@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-{{ rendered|safe }}
+<h1 class="title">{{ title }}</h1>
+<div class="content is-small">{{ rendered|safe }}</div>
 {% endblock %}

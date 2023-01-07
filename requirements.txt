@@ -2,3 +2,6 @@ flask
 flask_sqlalchemy
 flask_login
 markdown
+pycryptodome
+passlib
+argon2_cffi
