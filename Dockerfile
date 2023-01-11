@@ -12,4 +12,4 @@ COPY . .
 ENV FLASK_APP=securenoteapp
 ENV FLASK_DEBUG=1
 
-CMD [ "python3", "-m", "flask", "run", "--host=0.0.0.0" ]
+CMD [ "python3", "-m", "flask", "run", "--host=0.0.0.0", "--port=443", "--cert=adhoc" ]
