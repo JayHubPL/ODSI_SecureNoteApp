@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, current_app, redirect, ur
 from flask_login import login_required, current_user
 from sqlalchemy.sql import text
 import markdown
+import bleach
 from .crypto import encrypt_note, decrypt_note, check_note_password
 from .utils import check_password_strength, generate_flash_msg
 from .models import Note
@@ -82,7 +83,7 @@ def note_show(note_id):
     if note.is_encrypted:
         return render_template('enter_note_password.html', note_id=note_id)
     else:
-        rendered = markdown.markdown(note.content)
+        rendered = bleach.clean(markdown.markdown(note.content), tags=['h1', 'h2', 'h3', 'h4', 'h5', 'a', 'strong', 'em', 'p'], attributes=['href'])
         return render_template('display_note.html', title=note.title, rendered=rendered)
 
 @main.route('/note/<note_id>', methods=['POST'])
