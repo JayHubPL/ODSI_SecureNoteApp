@@ -69,6 +69,10 @@ def note_post():
 @main.route('/note/<note_id>')
 @login_required
 def note_show(note_id):
+    if not note_id.isnumeric():
+        flash('Invalid note_id')
+        return redirect(url_for('main.profile'))
+
     note = Note.query.filter_by(id=note_id).one()
     current_app.logger.debug('%s', note.content)
 
@@ -89,6 +93,10 @@ def note_show(note_id):
 @main.route('/note/<note_id>', methods=['POST'])
 @login_required
 def validate_note_password(note_id):
+    if not note_id.isnumeric():
+        flash('Invalid note_id')
+        return redirect(url_for('main.profile'))
+        
     note = Note.query.filter_by(id=note_id).one()
     password = request.form['password']
 
