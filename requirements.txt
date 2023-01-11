@@ -5,3 +5,4 @@ markdown
 pycryptodome
 passlib
 argon2_cffi
+flask_wtf
