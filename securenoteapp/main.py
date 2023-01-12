@@ -87,7 +87,7 @@ def note_show(note_id):
     if note.is_encrypted:
         return render_template('enter_note_password.html', note_id=note_id)
     else:
-        rendered = bleach.clean(markdown.markdown(note.content), tags=['h1', 'h2', 'h3', 'h4', 'h5', 'a', 'strong', 'em', 'p'], attributes=['href'])
+        rendered = bleach.clean(markdown.markdown(note.content), tags=['h1', 'h2', 'h3', 'h4', 'h5', 'a', 'strong', 'em', 'p'], attributes={ 'a': ['href'] })
         return render_template('display_note.html', title=note.title, rendered=rendered)
 
 @main.route('/note/<note_id>', methods=['POST'])
