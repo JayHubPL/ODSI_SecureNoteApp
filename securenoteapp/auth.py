@@ -4,6 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from .models import User
 from .utils import check_password_strength, generate_flash_msg
 from . import db
+import re
 
 auth = Blueprint('auth', __name__)
 
@@ -13,9 +14,12 @@ def login():
 
 @auth.route('/login', methods=['POST'])
 def login_post():
-    # TODO add input validation
-    email = request.form.get('email')
+    email = request.form.get('email').strip()
     password = request.form.get('password')
+
+    if not validateEmail(email):
+        flash('Email is invalid.')
+        return redirect(url_for('auth.login'))
 
     user = User.query.filter_by(email=email).first()
 
@@ -32,10 +36,13 @@ def signup():
 
 @auth.route('/signup', methods=['POST'])
 def signup_post():
-    # TODO add input validation
-    email = request.form.get('email')
-    name = request.form.get('name')
+    email = request.form.get('email').strip()
+    name = request.form.get('name').strip()
     password = request.form.get('password')
+
+    if not validateEmail(email):
+        flash('Email is invalid.')
+        return redirect(url_for('auth.signup'))
 
     user = User.query.filter_by(email=email).first()
     if user:
@@ -60,3 +67,8 @@ def signup_post():
 def logout():
     logout_user()
     return redirect(url_for('main.index'))
+
+def validateEmail(email: str):
+    email_regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+    return re.fullmatch(email_regex, email) is not None
+    
