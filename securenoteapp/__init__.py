@@ -6,6 +6,7 @@ from flask_wtf.csrf import CSRFProtect
 csrf = CSRFProtect()
 db = SQLAlchemy()
 
+
 def create_app():
     app = Flask(__name__)
 
@@ -27,7 +28,7 @@ def create_app():
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(int(user_id))
-    
+
     with app.app_context():
         db.create_all()
 
@@ -42,5 +43,8 @@ def create_app():
 
     from .encrypt import encrypt as encrypt_blueprint
     app.register_blueprint(encrypt_blueprint)
+
+    from .note_view import note_view as note_view_blueprint
+    app.register_blueprint(note_view_blueprint)
 
     return app

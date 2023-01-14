@@ -3,43 +3,43 @@
 {% block content %}
 {% with messages = get_flashed_messages() %}
 {% if messages %}
-    <div class="notification is-danger">
-        {{ messages[0] }}
-    </div>
+<div class="notification is-danger">
+    {{ messages[0] }}
+</div>
 {% endif %}
 {% endwith %}
 <h1 class="title">
-  Welcome, {{ name }}
+    Welcome, {{ name }}
 </h1>
 {% if notes|length > 0 %}
 <div class="box">
-  <h2 class="subtitle has-text-black"> Your notes: </h2>
-  <ul>
-  {% for note in notes %}
-    <li>
-      <a href="{{ url_for('main.note_show', note_id=note.id) }}">{{ loop.index }}. {{ note.title }}</a>
-    </li>
-  {% endfor %}
-  </ul>
-  {% else %}
-  <h2 class="subtitle">
-    Looks like you don't have a single note yet.
-  </h2>
-  <div>
-    <a class="pagination-link" href="{{ url_for('main.note_create') }}">Create your first note</a>
-  </div>
+    <h2 class="subtitle has-text-black"> Your notes: </h2>
+    <ul>
+        {% for note in notes %}
+        <li>
+            <a href="{{ url_for('note_view.note_show', note_id=note.id) }}">{{ loop.index }}. {{ note.title }}</a>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <h2 class="subtitle">
+        Looks like you don't have a single note yet.
+    </h2>
+    <div>
+        <a class="pagination-link" href="{{ url_for('note_view.note_create') }}">Create your first note</a>
+    </div>
 </div>
 {% endif %}
 {% if shared_notes|length > 0 %}
 <div class="box">
-  <h2 class="subtitle has-text-black"> Shared notes: </h2>
-  <ul>
-  {% for note in shared_notes %}
-    <li>
-      <a href="{{ url_for('main.note_show', note_id=note.id) }}">{{ loop.index }}. {{ note.title }}</a>
-    </li>
-  {% endfor %}
-  </ul>
+    <h2 class="subtitle has-text-black"> Shared notes: </h2>
+    <ul>
+        {% for note in shared_notes %}
+        <li>
+            <a href="{{ url_for('note_view.note_show', note_id=note.id) }}">{{ loop.index }}. {{ note.title }}</a>
+        </li>
+        {% endfor %}
+    </ul>
 </div>
 {% endif %}
 {% endblock %}

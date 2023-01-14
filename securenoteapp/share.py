@@ -1,11 +1,15 @@
-from flask import Blueprint, flash, redirect, url_for, current_app, Response, render_template,request
-from flask_login import login_required, current_user
-from .models import Note, User, Share
-from . import db
-from .utils import get_validated_note
 import re
 
+from flask import (Blueprint, Response, current_app, flash, redirect,
+                   render_template, request, url_for)
+from flask_login import current_user, login_required
+
+from . import db
+from .models import Note, Share, User
+from .utils import get_validated_note
+
 share = Blueprint('share', __name__)
+
 
 @share.route('/change_share_status/<note_id>')
 @login_required
@@ -24,6 +28,7 @@ def change_share_status(note_id):
         return redirect(url_for('main.profile'))
     else:
         return render_template('share_to.html', note_id=note_id)
+
 
 @share.route('/change_share_status/<note_id>', methods=['POST'])
 @login_required
@@ -45,4 +50,4 @@ def share_note(note_id):
         db.session.add(share)
 
     db.session.commit()
-    return redirect(url_for('main.note_show', note_id=note_id))
+    return redirect(url_for('note_view.note_show', note_id=note_id))

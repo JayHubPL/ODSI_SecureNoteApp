@@ -1,7 +1,8 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Text, DateTime
 from flask_login import UserMixin
-from dataclasses import dataclass
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Text
+
 from . import db
+
 
 class User(UserMixin, db.Model):
     __tablename__ = "users"
@@ -10,7 +11,7 @@ class User(UserMixin, db.Model):
     password = Column(String(100), nullable=False)
     name = Column(String(1000), nullable=False)
 
-@dataclass
+
 class Note(db.Model):
     __tablename__ = "notes"
     id = Column(Integer, primary_key=True)
@@ -21,6 +22,7 @@ class Note(db.Model):
     is_encrypted = Column(Boolean, default=False, nullable=False)
     password = Column(String(100), nullable=True)
     public_link = Column(String(200), unique=True, nullable=True)
+
 
 class Share(db.Model):
     __tablename__ = "shares"
