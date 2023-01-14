@@ -2,11 +2,11 @@
 
 FROM python:3.8-slim-buster
 
-WORKDIR /securenoteapp
+WORKDIR /app
 
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
-RUN mkdir -p static/uploads
+RUN mkdir -p securenoteapp/static/uploads
 
 COPY . .
 
