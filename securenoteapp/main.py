@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, current_app, redirect, ur
 from flask_login import login_required, current_user
 from sqlalchemy.sql import text
 import markdown
-import bleach
+from bleach import Cleaner
 import re
 import os
 from werkzeug.utils import secure_filename
@@ -12,6 +12,11 @@ from .models import Note
 from . import db
 
 main = Blueprint('main', __name__)
+
+cleaner = Cleaner( \
+    tags=['h1', 'h2', 'h3', 'h4', 'h5', 'a', 'strong', 'em', 'p', 'img', 'ul', 'li'], \
+    attributes={ 'a': ['href'], 'img': ['src'] }
+)
 
 @main.route('/')
 def index():
@@ -98,7 +103,7 @@ def note_show(note_id):
     if note.is_encrypted:
         return render_template('enter_note_password.html', note_id=note_id)
     else:
-        rendered = bleach.clean(markdown.markdown(note.content), tags=['h1', 'h2', 'h3', 'h4', 'h5', 'a', 'strong', 'em', 'p', 'img'], attributes={ 'a': ['href'], 'img': ['src'] })
+        rendered = cleaner.clean(markdown.markdown(note.content))
         for filename in re.findall(r'<img src="(.*)">', rendered):
             rendered = rendered.replace(filename, url_for('main.uploaded_file', filename=filename))
         current_app.logger.debug('Rendered %s', rendered)
