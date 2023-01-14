@@ -49,6 +49,10 @@ def signup_post():
         flash('Email address already exists')
         return redirect(url_for('auth.signup'))
 
+    if not name:
+        flash('Name cannot be empty.')
+        return redirect(url_for('auth.signup'))
+
     pw_info = check_password_strength(password)
     if not pw_info['password_ok']:
         flash(generate_flash_msg(pw_info))
