@@ -4,8 +4,8 @@ from sqlalchemy.sql import text
 import markdown
 from bleach import Cleaner
 import re
-import os
 from werkzeug.utils import secure_filename
+from werkzeug.security import safe_join
 from .crypto import encrypt_note, decrypt_note, check_note_password
 from .utils import check_password_strength, generate_flash_msg
 from .models import Note
@@ -62,7 +62,7 @@ def note_post():
     for file in request.files.getlist('photos'):
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+            file.save(safe_join(current_app.root_path, current_app.config['UPLOAD_FOLDER'], filename))
 
     if request.form['password']:
         password = request.form['password']
@@ -131,7 +131,7 @@ def validate_note_password(note_id):
 @login_required
 def uploaded_file(filename):
     current_app.logger.debug('Getting file: %s', filename)
-    return send_from_directory(current_app.static_folder, filename) # TODO file is not found, why?
+    return send_from_directory(current_app.config['UPLOAD_FOLDER'], filename)
 
 def check_view_permission(note):
     # TODO add share check
