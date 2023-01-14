@@ -1,14 +1,13 @@
 from flask import Blueprint, render_template, request, current_app, redirect, url_for, flash, session, send_from_directory
 from flask_login import login_required, current_user
-from sqlalchemy.sql import text
 import markdown
 from bleach import Cleaner
 import re
 from werkzeug.utils import secure_filename
 from werkzeug.security import safe_join
 from .crypto import encrypt_note, decrypt_note, check_note_password
-from .utils import check_password_strength, generate_flash_msg
-from .models import Note
+from .utils import check_password_strength, generate_flash_msg, check_view_permission
+from .models import Note, Share
 from . import db
 
 main = Blueprint('main', __name__)
@@ -26,12 +25,13 @@ def index():
 @login_required
 def profile():
     notes = Note.query.filter_by(owner_id = current_user.id).all()
-    current_app.logger.debug('%s', notes)
+    shared_notes = db.session.query(Note).join(Share).filter(Share.viewer_id == current_user.id).all()
+    current_app.logger.debug(shared_notes)
 
     session['wip_title'] = ""
     session['wip_content'] = ""
     
-    return render_template('profile.html', name=current_user.name, notes=notes)
+    return render_template('profile.html', name=current_user.name, notes=notes, shared_notes=shared_notes)
 
 @main.route('/note')
 @login_required
@@ -89,7 +89,7 @@ def note_show(note_id):
         flash('Invalid note_id')
         return redirect(url_for('main.profile'))
 
-    note = Note.query.filter_by(id=note_id).one()
+    note = Note.query.filter_by(id=note_id).first()
     current_app.logger.debug('%s', note.content)
 
     if note is None:
@@ -101,13 +101,14 @@ def note_show(note_id):
         return redirect(url_for('main.profile'))
 
     if note.is_encrypted:
-        return render_template('enter_note_password.html', note_id=note_id)
+        return render_template('enter_note_password.html', form_action=url_for('main.validate_note_password', note_id=note_id), button_message="Decrypt note")
     else:
         rendered = cleaner.clean(markdown.markdown(note.content))
         for filename in re.findall(r'<img src="(.*)">', rendered):
             rendered = rendered.replace(filename, url_for('main.uploaded_file', filename=filename))
         current_app.logger.debug('Rendered %s', rendered)
-        return render_template('display_note.html', title=note.title, rendered=rendered)
+        is_owner = note.owner_id == current_user.id
+        return render_template('display_note.html', note=note, rendered=rendered, is_owner=is_owner)
 
 @main.route('/note/<note_id>', methods=['POST'])
 @login_required
@@ -116,23 +117,20 @@ def validate_note_password(note_id):
         flash('Invalid note_id')
         return redirect(url_for('main.profile'))
         
-    note = Note.query.filter_by(id=note_id).one()
+    note = Note.query.filter_by(id=note_id).first()
     password = request.form['password']
 
     if check_note_password(password, note.password):
         decrypted = decrypt_note(note.content, note.password)
         rendered = markdown.markdown(decrypted)
-        return render_template('display_note.html', title=note.title, rendered=rendered)
+        is_owner = note.owner_id == current_user.id
+        return render_template('display_note.html', note=note, rendered=rendered, is_owner=is_owner)
     else:
         flash("Invalid password")
-        return redirect('main.note_show', note_id=note_id)
+        return redirect(url_for('main.note_show', note_id=note_id))
 
 @main.route('/uploads/<filename>')
 @login_required
 def uploaded_file(filename):
     current_app.logger.debug('Getting file: %s', filename)
     return send_from_directory(current_app.config['UPLOAD_FOLDER'], filename)
-
-def check_view_permission(note):
-    # TODO add share check
-    return note.owner_id == current_user.id

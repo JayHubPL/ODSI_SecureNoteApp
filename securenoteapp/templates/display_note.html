@@ -1,6 +1,37 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 class="title">{{ title }}</h1>
+<h1 class="title">{{ note.title }}</h1>
 <div class="content is-small">{{ rendered|safe }}</div>
+{% if is_owner %}
+<div class="box column is-4 is-offset-4">
+    <form class="buttons is-centered">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        {% if not note.is_encrypted %}
+            <button class="button" type="submit" 
+            formaction="{{ url_for('share.change_share_status', note_id=note.id) }}" 
+            formmethod="get"
+            class="button is-block is-info is-large">
+                {% if note.is_public %}
+                Make private
+                {% else %}
+                Share
+                {% endif %}
+            </button>
+        {% endif %}
+        {% if not note.is_public %}
+            <button class="button" type="submit" 
+            formaction="{{ url_for('encrypt.change_encryption_status', note_id=note.id) }}" 
+            formmethod="post"
+            class="button is-block is-info is-large">
+                {% if note.is_encrypted %}
+                Remove encryption
+                {% else %}
+                Add encryption
+                {% endif %}
+            </button>
+        {% endif %}
+    </form>
+</div>
+{% endif %}
 {% endblock %}

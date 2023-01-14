@@ -1,6 +1,9 @@
+from flask_login import current_user
 from math import log2
 import re
 from .crypto import PASSWORD_MIN_LEN
+from . import db
+from .models import Share
 
 def check_password_strength(password):
     # calculating the length
@@ -56,3 +59,29 @@ def entropy(data):
         p = n[b] / N
         entropy -= p * log2(p)
     return entropy
+
+from flask import flash, redirect, url_for, current_app
+from flask_login import current_user
+from .models import Note
+
+def get_validated_note(note_id):
+    if not note_id.isnumeric():
+        flash('Invalid note_id')
+        return redirect(url_for('main.profile'))
+
+    note = Note.query.filter_by(id=note_id).first()
+    current_app.logger.debug('%s', note.content)
+
+    if note is None:
+        flash("Invalid note_id")
+        return redirect(url_for('main.profile'))
+    
+    if not check_view_permission(note):
+        flash("You don't have permission to view this content")
+        return redirect(url_for('main.profile'))
+
+    return note
+
+def check_view_permission(note):
+    is_shared = Share.query.filter_by(note_id=note.id, viewer_id=current_user.id).first() is not None
+    return is_shared or note.owner_id == current_user.id

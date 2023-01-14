@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+    <div class="notification is-danger">
+        {{ messages[0] }}
+    </div>
+{% endif %}
+{% endwith %}
+<h3 class="title">Share your note</h3>
+<h4 class="subtitle">Provide emails of the recipients separated by a comma</h4>
+<form method="POST" action="{{ url_for('share.share_note', note_id=note_id) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <div class="field">
+        <div class="control">
+            <input class="input is-medium" type="text" name="emails" placeholder="Leave empty to allow all to have access">
+        </div>
+    </div>
+    <button class="button is-block is-info is-large is-fullwidth">Share</button>
+</form>
+{% endblock %}
