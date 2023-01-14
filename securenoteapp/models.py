@@ -1,5 +1,5 @@
 from flask_login import UserMixin
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Text, CHAR
 
 from . import db
 
@@ -21,7 +21,7 @@ class Note(db.Model):
     is_public = Column(Boolean, default=False, nullable=False)
     is_encrypted = Column(Boolean, default=False, nullable=False)
     password = Column(String(100), nullable=True)
-    public_link = Column(String(200), unique=True, nullable=True)
+    uuid = Column(CHAR(36), unique=True, nullable=True)
 
 
 class Share(db.Model):
