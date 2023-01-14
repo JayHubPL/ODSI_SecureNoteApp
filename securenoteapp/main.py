@@ -1,8 +1,11 @@
-from flask import Blueprint, render_template, request, current_app, redirect, url_for, flash, session
+from flask import Blueprint, render_template, request, current_app, redirect, url_for, flash, session, send_from_directory
 from flask_login import login_required, current_user
 from sqlalchemy.sql import text
 import markdown
 import bleach
+import re
+import os
+from werkzeug.utils import secure_filename
 from .crypto import encrypt_note, decrypt_note, check_note_password
 from .utils import check_password_strength, generate_flash_msg
 from .models import Note
@@ -35,6 +38,9 @@ def note_create():
 
     return render_template('new_note.html', note_title=session['wip_title'], note_text=session['wip_content'])
 
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1] in current_app.config['ALLOWED_EXTENSIONS']
+
 @main.route('/note', methods=['POST'])
 @login_required
 def note_post():
@@ -47,6 +53,11 @@ def note_post():
     if not title:
         flash("Title cannot be empty")
         return redirect(url_for('main.note_create'))
+
+    for file in request.files.getlist('photos'):
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
 
     if request.form['password']:
         password = request.form['password']
@@ -87,7 +98,10 @@ def note_show(note_id):
     if note.is_encrypted:
         return render_template('enter_note_password.html', note_id=note_id)
     else:
-        rendered = bleach.clean(markdown.markdown(note.content), tags=['h1', 'h2', 'h3', 'h4', 'h5', 'a', 'strong', 'em', 'p'], attributes={ 'a': ['href'] })
+        rendered = bleach.clean(markdown.markdown(note.content), tags=['h1', 'h2', 'h3', 'h4', 'h5', 'a', 'strong', 'em', 'p', 'img'], attributes={ 'a': ['href'], 'img': ['src'] })
+        for filename in re.findall(r'<img src="(.*)">', rendered):
+            rendered = rendered.replace(filename, url_for('main.uploaded_file', filename=filename))
+        current_app.logger.debug('Rendered %s', rendered)
         return render_template('display_note.html', title=note.title, rendered=rendered)
 
 @main.route('/note/<note_id>', methods=['POST'])
@@ -107,6 +121,12 @@ def validate_note_password(note_id):
     else:
         flash("Invalid password")
         return redirect('main.note_show', note_id=note_id)
+
+@main.route('/uploads/<filename>')
+@login_required
+def uploaded_file(filename):
+    current_app.logger.debug('Getting file: %s', filename)
+    return send_from_directory(current_app.static_folder, filename) # TODO file is not found, why?
 
 def check_view_permission(note):
     # TODO add share check

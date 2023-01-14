@@ -6,6 +6,7 @@ WORKDIR /securenoteapp
 
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
+RUN mkdir -p static/uploads
 
 COPY . .
 
