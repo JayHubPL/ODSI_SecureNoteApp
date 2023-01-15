@@ -14,7 +14,7 @@ encrypt = Blueprint('encrypt', __name__)
 @encrypt.route('/change_encryption_status/<note_id>', methods=['POST'])
 @login_required
 def change_encryption_status(note_id):
-    note = get_validated_note(note_id)
+    note = get_validated_note(note_id, must_own=True)
     if isinstance(note, Response):
         return note
 
@@ -31,7 +31,7 @@ def change_encryption_status(note_id):
 @encrypt.route('/add_password/<note_id>', methods=['POST'])
 @login_required
 def add_password(note_id):
-    note = get_validated_note(note_id)
+    note = get_validated_note(note_id, must_own=True)
     if isinstance(note, Response):
         return note
 

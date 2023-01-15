@@ -62,7 +62,7 @@ def entropy(data):
     return entropy
 
 
-def get_validated_note(note_id):
+def get_validated_note(note_id, must_own=False):
     if not note_id.isnumeric():
         flash('Invalid note_id')
         return redirect(url_for('main.profile'))
@@ -74,15 +74,17 @@ def get_validated_note(note_id):
         flash("Invalid note_id")
         return redirect(url_for('main.profile'))
 
-    if not check_view_permission(note):
+    if not check_view_permission(note, must_own):
         flash("You don't have permission to view this content")
         return redirect(url_for('main.profile'))
 
     return note
 
 
-def check_view_permission(note):
+def check_view_permission(note, must_own):
     is_owner = note.owner_id == current_user.id
+    if must_own:
+        return is_owner
     is_global = db.session.query(Note.query.filter(
         Note.id == note.id and Note.uuid is not None).exists()).scalar()
     is_shared = Share.query.filter_by(

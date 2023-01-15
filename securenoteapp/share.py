@@ -15,7 +15,7 @@ share = Blueprint('share', __name__)
 @share.route('/change_share_status/<note_id>')
 @login_required
 def change_share_status(note_id):
-    note = get_validated_note(note_id)
+    note = get_validated_note(note_id, must_own=True)
     if isinstance(note, Response):
         return note
 
@@ -36,7 +36,7 @@ def change_share_status(note_id):
 @share.route('/change_share_status/<note_id>', methods=['POST'])
 @login_required
 def share_note(note_id):
-    note = get_validated_note(note_id)
+    note = get_validated_note(note_id, must_own=True)
     if isinstance(note, Response):
         return note
 
