@@ -106,7 +106,7 @@ def note_show(note_id):
 @note_view.route('/<note_id>', methods=['POST'])
 @login_required
 def validate_note_password(note_id):
-    note = get_validated_note(note_id)
+    note = get_validated_note(note_id, True)
     if isinstance(note, Response):
         return note
 
