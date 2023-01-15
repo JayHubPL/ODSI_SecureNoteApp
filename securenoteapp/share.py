@@ -55,6 +55,7 @@ def share_note(note_id):
     else:
         note_uuid = str(uuid.uuid4())
         Note.query.filter_by(id=note.id).update(dict(uuid=note_uuid))
+        db.session.commit()
 
     Note.query.filter_by(id=note.id).update(dict(is_public=True))
     db.session.commit()
