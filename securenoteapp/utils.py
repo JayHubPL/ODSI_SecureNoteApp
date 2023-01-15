@@ -4,6 +4,7 @@ from math import log2
 from flask import current_app, flash, redirect, url_for
 from flask_login import current_user
 
+from . import db
 from .crypto import PASSWORD_MIN_LEN
 from .models import Note, Share
 
@@ -81,9 +82,12 @@ def get_validated_note(note_id):
 
 
 def check_view_permission(note):
+    is_owner = note.owner_id == current_user.id
+    is_global = db.session.query(Note.query.filter(
+        Note.id == note.id and Note.uuid is not None).exists()).scalar()
     is_shared = Share.query.filter_by(
         note_id=note.id, viewer_id=current_user.id).first() is not None
-    return is_shared or note.owner_id == current_user.id
+    return is_shared or is_owner or is_global
 
 
 def is_file_allowed(filename):

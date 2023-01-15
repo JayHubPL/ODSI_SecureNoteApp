@@ -2,7 +2,7 @@ import re
 import uuid
 
 from flask import (Blueprint, Response, flash, redirect, render_template,
-                   request, url_for)
+                   request, url_for, current_app)
 from flask_login import login_required
 
 from . import db
@@ -64,4 +64,20 @@ def share_note(note_id):
 @share.route('/public/<uuid>')
 @login_required
 def show_public_note(uuid):
-    return uuid
+    if not validateUuid(uuid):
+        flash('Invalid UUID')
+        return redirect(url_for('main.profile'))
+
+    note = Note.query.filter(Note.uuid==uuid).first()
+    current_app.logger.debug(note)
+
+    if not note:
+        flash('Invalid UUID')
+        return redirect(url_for('main.profile'))
+
+    return redirect(url_for('note_view.note_show', note_id=note.id))
+
+
+def validateUuid(uuid):
+    uuid_regex = re.compile(r'^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}\Z', re.I)
+    return uuid_regex.match(uuid) is not None
