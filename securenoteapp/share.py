@@ -79,6 +79,21 @@ def show_public_note(uuid):
     return redirect(url_for('note_view.note_show', note_id=note.id))
 
 
+@share.route('/get_public_link/<note_id>', methods=['POST'])
+@login_required
+def get_public_link(note_id):
+    note = get_validated_note(note_id, True)
+    if isinstance(note, Response):
+        return note
+
+    if note.uuid is None:
+        flash('Note is not publicly available')
+        return redirect(url_for('main.profile'))
+
+    flash(url_for('share.show_public_note', uuid=note.uuid, _external=True))
+    return redirect(url_for('note_view.note_show', note_id=note_id))
+
+
 def validateUuid(uuid):
     uuid_regex = re.compile(r'^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}\Z', re.I)
     return uuid_regex.match(uuid) is not None

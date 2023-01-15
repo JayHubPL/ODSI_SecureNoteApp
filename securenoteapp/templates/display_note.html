@@ -29,12 +29,11 @@
         </button>
         {% endif %}
         {% if note.is_public and note.uuid is not none %}
-        <script>
-            function copyText() {
-                navigator.clipboard.writeText("{{ url_for('share.show_public_note', uuid=note.uuid, _external=True) }}");
-            }
-        </script>
-        <button class="button" onclick="copyText()">Copy link</button>
+        <button class="button" type="submit"
+            formaction="{{ url_for('share.get_public_link', note_id=note.id) }}"
+            formmethod="post" class="button is-block is-info is-large">
+            Get public link
+        </button>
         {% endif %}
     </form>
 </div>
