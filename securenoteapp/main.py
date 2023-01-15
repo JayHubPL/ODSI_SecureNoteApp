@@ -32,3 +32,11 @@ def profile():
 def uploaded_file(uuid):
     current_app.logger.debug('Getting file: %s', uuid)
     return send_from_directory(current_app.config['UPLOAD_FOLDER'], uuid)
+
+@main.after_app_request
+def add_security_headers(response):
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    response.headers['Content-Security-Policy'] = "default-src 'self'"
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    return response

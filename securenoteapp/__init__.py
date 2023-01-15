@@ -17,6 +17,9 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
     app.config['UPLOAD_FOLDER'] = 'static/uploads'
     app.config['ALLOWED_EXTENSIONS'] = {'jpg', 'jpeg', 'png', 'gif'}
+    app.config['SESSION_COOKIE_SECURE'] = True,
+    app.config['SESSION_COOKIE_HTTPONLY'] = True,
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
     db.init_app(app)
     csrf.init_app(app)
