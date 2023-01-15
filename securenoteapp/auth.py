@@ -11,6 +11,7 @@ from .utils import check_password_strength, get_password_strength_flash_message
 
 auth = Blueprint('auth', __name__)
 
+
 @auth.route('/login')
 def login():
     return render_template('login.html')
@@ -86,9 +87,11 @@ def validateEmail(email: str):
     email_regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
     return re.fullmatch(email_regex, email) is not None
 
+
 def invalid_credentials():
     flash('Please check your login details and try again.')
     return redirect(url_for('auth.login'))
+
 
 @auth.errorhandler(429)
 def login_limit_reached(error):

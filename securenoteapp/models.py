@@ -1,5 +1,5 @@
 from flask_login import UserMixin
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Text, CHAR
+from sqlalchemy import CHAR, Boolean, Column, ForeignKey, Integer, String, Text
 
 from . import db
 

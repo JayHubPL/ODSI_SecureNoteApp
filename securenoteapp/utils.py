@@ -1,12 +1,11 @@
-from flask import current_app, flash, redirect, url_for
-from .models import Note
 import re
 from math import log2
 
+from flask import current_app, flash, redirect, url_for
 from flask_login import current_user
 
 from .crypto import PASSWORD_MIN_LEN
-from .models import Share
+from .models import Note, Share
 
 
 def check_password_strength(password):

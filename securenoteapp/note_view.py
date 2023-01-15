@@ -56,7 +56,8 @@ def note_post():
                 flash('Remove unused pictures from uploads')
                 return redirect(url_for('note_view.note_create'))
             file_uuid = str(uuid.uuid4())
-            content = content.replace(filename, url_for('main.uploaded_file', uuid=file_uuid))
+            content = content.replace(filename, url_for(
+                'main.uploaded_file', uuid=file_uuid))
             files_to_save[file_uuid] = file
         else:
             flash('You can only upload pictures')

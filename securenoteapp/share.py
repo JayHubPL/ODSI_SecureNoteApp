@@ -1,8 +1,8 @@
 import re
 import uuid
 
-from flask import (Blueprint, Response, flash, redirect,
-                   render_template, request, url_for)
+from flask import (Blueprint, Response, flash, redirect, render_template,
+                   request, url_for)
 from flask_login import login_required
 
 from . import db
@@ -24,7 +24,8 @@ def change_share_status(note_id):
         return redirect(url_for('main.profile'))
 
     if note.is_public:
-        Note.query.filter_by(id=note.id).update(dict(is_public=False, uuid=None))
+        Note.query.filter_by(id=note.id).update(
+            dict(is_public=False, uuid=None))
         Share.query.filter_by(note_id=note.id).delete()
         db.session.commit()
         return redirect(url_for('note_view.note_show', note_id=note_id))
