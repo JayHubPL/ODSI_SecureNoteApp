@@ -2,7 +2,7 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 from passlib.hash import argon2
 
-PASSWORD_MIN_LEN = 8
+PASSWORD_MIN_LEN = 12
 
 
 def encrypt_note(content, password):
