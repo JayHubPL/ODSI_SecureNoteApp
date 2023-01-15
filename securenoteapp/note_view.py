@@ -1,4 +1,5 @@
 import re
+import uuid
 
 import markdown
 from bleach import Cleaner
@@ -43,11 +44,26 @@ def note_post():
         flash("Title cannot be empty")
         return redirect(url_for('note_view.note_create'))
 
-    for file in request.files.getlist('photos'):
-        if file and is_file_allowed(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(safe_join(current_app.root_path,
-                      current_app.config['UPLOAD_FOLDER'], filename))
+    files_to_save = dict()
+    uploads = request.files.getlist('photos')
+    for file in uploads:
+        if not file:
+            continue
+        filename = secure_filename(file.filename)
+        if is_file_allowed(filename):
+            regex = r'!\[.*\]\(.*' + re.escape(filename) + r'.*\)'
+            if re.search(regex, content) is None:
+                flash('Remove unused pictures from uploads')
+                return redirect(url_for('note_view.note_create'))
+            file_uuid = str(uuid.uuid4())
+            content = content.replace(filename, url_for('main.uploaded_file', uuid=file_uuid))
+            files_to_save[file_uuid] = file
+        else:
+            flash('You can only upload pictures')
+            return redirect(url_for('note_view.note_create'))
+    for file_uuid, file in files_to_save.items():
+        file.save(safe_join(current_app.root_path,
+                  current_app.config['UPLOAD_FOLDER'], file_uuid))
 
     if request.form['password']:
         password = request.form['password']
@@ -81,9 +97,6 @@ def note_show(note_id):
         return render_template('enter_note_password.html', form_action=url_for('note_view.validate_note_password', note_id=note_id), button_message="Decrypt note")
     else:
         rendered = cleaner.clean(markdown.markdown(note.content))
-        for filename in re.findall(r'<img src="(.*)">', rendered):
-            rendered = rendered.replace(filename, url_for(
-                'main.uploaded_file', filename=filename))
         current_app.logger.debug('Rendered %s', rendered)
         is_owner = note.owner_id == current_user.id
         return render_template('display_note.html', note=note, rendered=rendered, is_owner=is_owner)

@@ -27,8 +27,8 @@ def profile():
     return render_template('profile.html', name=current_user.name, notes=notes, shared_notes=shared_notes)
 
 
-@main.route('/uploads/<filename>')
+@main.route('/uploads/<uuid>')
 @login_required
-def uploaded_file(filename):
-    current_app.logger.debug('Getting file: %s', filename)
-    return send_from_directory(current_app.config['UPLOAD_FOLDER'], filename)
+def uploaded_file(uuid):
+    current_app.logger.debug('Getting file: %s', uuid)
+    return send_from_directory(current_app.config['UPLOAD_FOLDER'], uuid)
