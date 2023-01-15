@@ -1,15 +1,15 @@
 import re
+import time
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required, login_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from . import db
+from . import db, limiter
 from .models import User
 from .utils import check_password_strength, get_password_strength_flash_message
 
 auth = Blueprint('auth', __name__)
-
 
 @auth.route('/login')
 def login():
@@ -17,20 +17,22 @@ def login():
 
 
 @auth.route('/login', methods=['POST'])
+@limiter.limit('5/15 minutes')
 def login_post():
+    time.sleep(3)
+
     email = request.form.get('email').strip()
     password = request.form.get('password')
 
     if not validateEmail(email):
-        flash('Email is invalid.')
-        return redirect(url_for('auth.login'))
+        return invalid_credentials()
 
     user = User.query.filter_by(email=email).first()
 
     if not user or not check_password_hash(user.password, password):
-        flash('Please check your login details and try again.')
-        return redirect(url_for('auth.login'))
+        return invalid_credentials()
 
+    limiter.reset()
     login_user(user)
     return redirect(url_for('main.profile'))
 
@@ -83,3 +85,12 @@ def logout():
 def validateEmail(email: str):
     email_regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
     return re.fullmatch(email_regex, email) is not None
+
+def invalid_credentials():
+    flash('Please check your login details and try again.')
+    return redirect(url_for('auth.login'))
+
+@auth.errorhandler(429)
+def login_limit_reached(error):
+    flash('Tried to login too many times. Please try again later.')
+    return redirect(url_for('auth.login'))

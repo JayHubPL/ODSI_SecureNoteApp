@@ -1,6 +1,7 @@
 flask
 flask_sqlalchemy
 flask_login
+Flask_limiter
 markdown
 pycryptodome
 passlib
