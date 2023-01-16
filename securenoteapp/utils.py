@@ -85,8 +85,7 @@ def check_view_permission(note, must_own):
     is_owner = note.owner_id == current_user.id
     if must_own:
         return is_owner
-    is_global = db.session.query(Note.query.filter(
-        Note.id == note.id and Note.uuid is not None).exists()).scalar()
+    is_global = note.uuid is not None
     is_shared = Share.query.filter_by(
         note_id=note.id, viewer_id=current_user.id).first() is not None
     return is_shared or is_owner or is_global
