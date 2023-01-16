@@ -7,7 +7,7 @@ from flask_login import login_required
 
 from . import db
 from .models import Note, Share, User
-from .utils import get_validated_note
+from .utils import get_validated_note, validate_email
 
 share = Blueprint('share', __name__)
 
@@ -45,6 +45,9 @@ def share_note(note_id):
     emails = request.form['emails'].strip()
     if emails:
         for email in re.split(r',\s*', emails):
+            if not validate_email(email):
+                flash('Invalid email: {}'.format(email))
+                return redirect(url_for('share.change_share_status', note_id=note_id))
             user = User.query.filter_by(email=email).first()
             if user is None:
                 flash('There is no user with email {}'.format(email))

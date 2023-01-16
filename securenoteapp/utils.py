@@ -92,3 +92,8 @@ def check_view_permission(note, must_own):
 
 def is_file_allowed(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] in current_app.config['ALLOWED_EXTENSIONS']
+
+
+def validate_email(email: str):
+    email_regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+    return re.fullmatch(email_regex, email) is not None

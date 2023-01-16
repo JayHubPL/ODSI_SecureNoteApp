@@ -7,7 +7,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from . import db, limiter
 from .models import User
-from .utils import check_password_strength, get_password_strength_flash_message
+from .utils import check_password_strength, get_password_strength_flash_message, validate_email
 
 auth = Blueprint('auth', __name__)
 
@@ -25,7 +25,7 @@ def login_post():
     email = request.form.get('email').strip()
     password = request.form.get('password')
 
-    if not validateEmail(email):
+    if not validate_email(email):
         return invalid_credentials()
 
     user = User.query.filter_by(email=email).first()
@@ -49,7 +49,7 @@ def signup_post():
     name = request.form.get('name').strip()
     password = request.form.get('password')
 
-    if not validateEmail(email):
+    if not validate_email(email):
         flash('Email is invalid.')
         return redirect(url_for('auth.signup'))
 
@@ -81,11 +81,6 @@ def signup_post():
 def logout():
     logout_user()
     return redirect(url_for('main.index'))
-
-
-def validateEmail(email: str):
-    email_regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
-    return re.fullmatch(email_regex, email) is not None
 
 
 def invalid_credentials():
