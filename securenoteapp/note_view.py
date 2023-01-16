@@ -20,7 +20,7 @@ note_view = Blueprint('note_view', __name__, url_prefix='/note')
 
 cleaner = Cleaner(
     tags=['h1', 'h2', 'h3', 'h4', 'h5', 'a',
-          'strong', 'em', 'p', 'img', 'ul', 'li'],
+          'strong', 'em', 'p', 'img'],
     attributes={'a': ['href'], 'img': ['src']}
 )
 
