@@ -23,7 +23,7 @@ def change_encryption_status(note_id):
         Note.query.filter_by(id=note.id).update(
             dict(is_encrypted=False, content=content_decrypted))
         db.session.commit()
-        return redirect(url_for('main.profile'))
+        return redirect(url_for('note_view.note_show', note_id=note.id))
     else:
         return render_template('enter_note_password.html', form_action=url_for('encrypt.add_password', note_id=note_id), button_message="Add password")
 
