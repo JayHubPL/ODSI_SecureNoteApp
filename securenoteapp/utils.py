@@ -4,7 +4,6 @@ from math import log2
 from flask import current_app, flash, redirect, url_for
 from flask_login import current_user
 
-from . import db
 from .crypto import PASSWORD_MIN_LEN
 from .models import Note, Share
 

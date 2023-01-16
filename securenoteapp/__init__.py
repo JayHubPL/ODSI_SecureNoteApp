@@ -1,4 +1,4 @@
-from flask import Flask, current_app
+from flask import Flask
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_login import LoginManager
