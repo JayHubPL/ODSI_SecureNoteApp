@@ -114,7 +114,7 @@ def validate_note_password(note_id):
 
     if check_note_password(password, note.password):
         decrypted = decrypt_note(note.content, note.password)
-        rendered = markdown.markdown(decrypted)
+        rendered = cleaner.clean(markdown.markdown(decrypted))
         return render_template('display_note.html', note=note, rendered=rendered, is_owner=True)
     else:
         flash("Invalid password")
